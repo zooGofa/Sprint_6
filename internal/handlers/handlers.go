@@ -12,18 +12,15 @@ import (
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	file, err := os.ReadFile("index.html")
-	if err != nil {
-		http.Error(w, "Failed to load HTML", http.StatusInternalServerError)
-		log.Println("Error reading index.html:", err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(file)
+	http.ServeFile(w, r, "index.html")
 }
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		http.Error(w, "Error parsing form", http.StatusInternalServerError)
@@ -69,6 +66,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(converted))
+	_, err = w.Write([]byte(converted))
+	if err != nil {
+		log.Println("Write error:", err)
+	}
 }

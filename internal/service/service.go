@@ -17,19 +17,12 @@ func Convert(data string) (string, error) {
 
 func isMorse(s string) bool {
 
-	for _, r := range s {
-		if r != '.' && r != '-' && r != ' ' {
-			return false
-		}
+	valid := !strings.ContainsFunc(s, func(r rune) bool {
+		return r != '.' && r != '-' && r != ' '
+	})
+	if !valid {
+		return false
 	}
 
-	hasMorseChar := false
-	for _, r := range s {
-		if r == '.' || r == '-' {
-			hasMorseChar = true
-			break
-		}
-	}
-
-	return hasMorseChar
+	return strings.ContainsAny(s, ".-")
 }
